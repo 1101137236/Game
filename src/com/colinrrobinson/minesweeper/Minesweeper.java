@@ -55,13 +55,13 @@ public class Minesweeper extends Game {
     // tile width and height
     float width = 64;
     float height = 64;
-    int grid_x = 10;
-    int grid_y = 10;
+    int grid_x = 12;
+    int grid_y = 12;
 
     @Override
     public void create() {
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 640, 640);
+        camera.setToOrtho(false, 1440, 768);
 
         batch = new SpriteBatch();
 
@@ -85,26 +85,26 @@ public class Minesweeper extends Game {
         shapeRenderer = new ShapeRenderer();
 
         tiles = new HashMap<Integer, Rectangle>();  // 初始化地圖的大小（？
-        tileGrid = new int[10][10];
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
+        tileGrid = new int[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
                 initTiles(i, j);
             }
         }
 
         // 必修 //
-        a1Grid = generateA1(10, 10, 2);
-        a2Grid = generateA2(10, 10, 2);
+        a1Grid = generate(10, 10, 2,11);
+        a2Grid = generate(10, 10, 2,12);
 
         // EC //
-        b1Grid = generateB1(10, 10, 3);
-        b2Grid = generateB2(10, 10, 3);
-        b3Grid = generateB3(10, 10, 3);
+        b1Grid = generate(10, 10, 3,21);
+        b2Grid = generate(10, 10, 3,22);
+        b3Grid = generate(10, 10, 3,23);
 
         // IDIC //
-        c1Grid = generateC1(10, 10, 3);
-        c2Grid = generateC2(10, 10, 3);
-        c3Grid = generateC3(10, 10, 3);
+        c1Grid = generate(10, 10, 3,31);
+        c2Grid = generate(10, 10, 3,32);
+        c3Grid = generate(10, 10, 3,33);
 
         // 這邊應該是在做玩家連線的
         MyGestureListener mgl = new MyGestureListener();
@@ -132,7 +132,7 @@ public class Minesweeper extends Game {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.8f, 0.8f, 0.8f, 1);
+        Gdx.gl.glClearColor(255,255,255,0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -143,8 +143,8 @@ public class Minesweeper extends Game {
             Integer key = entry.getKey();
             Rectangle tile = entry.getValue();
 
-            int row = (int) key % 10;
-            int col = (int) Math.floor(key / 10);
+            int row = (int) key % 12;
+            int col = (int) Math.floor(key / 12);
             int state = tileGrid[col][row];
 
             Texture texture = coveredTexture;
@@ -173,7 +173,7 @@ public class Minesweeper extends Game {
         }
         batch.end();
 
-        drawGrid();
+//        drawGrid();
 
     }
 
@@ -218,24 +218,24 @@ public class Minesweeper extends Game {
     /**
      * 執行
      */
-    private void drawGrid() {
-        float x;
-        float y;
-        Gdx.gl20.glLineWidth(4 / camera.zoom); // line width
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(Color.BLACK);
-        for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j <= 10; j++) {
-                x = 0 + i * 64;
-                y = 0 + j * 64;
-                shapeRenderer.line(x, y, x, y + height);
-                shapeRenderer.line(x, y, x + width, y);
-
-            }
-        }
-        shapeRenderer.end();
-    }
+//    private void drawGrid() {
+//        float x;
+//        float y;
+//        Gdx.gl20.glLineWidth(4 / camera.zoom); // line width
+//        shapeRenderer.setProjectionMatrix(camera.combined);
+//        shapeRenderer.begin(ShapeType.Line);
+//        shapeRenderer.setColor(Color.BLACK);
+//        for (int i = 0; i < 12; i++) {
+//            for (int j = 0; j <= 12; j++) {
+//                x = 0 + i * 64;
+//                y = 0 + j * 64;
+//                shapeRenderer.line(x, y, x, y + height);
+//                shapeRenderer.line(x, y, x + width, y);
+//
+//            }
+//        }
+//        shapeRenderer.end();
+//    }
 
     /**
      * 畫面設定
@@ -272,9 +272,7 @@ public class Minesweeper extends Game {
 
     }
 
-    // 建立課程和道具 //
-    public int[][] generateA1(int grid_x, int grid_y, int db_count) {
-
+    public int[][] generate(int grid_x, int grid_y, int db_count, int c_num) {
         int[][] grid = new int[10][10];
         for (int n = 0; n < grid_x; n++) {
             for (int m = 0; m < grid_y; m++) {
@@ -282,188 +280,71 @@ public class Minesweeper extends Game {
             }
         }
 
-        int mine_value = 11, mine_x, mine_y;
+        int mine_value = c_num, mine_x, mine_y;
 
         for (int k = 0; k < db_count; k++) {
             mine_x = (int) Math.floor(Math.random() * grid_x);
             mine_y = (int) Math.floor(Math.random() * grid_y);
 
-            if (grid[mine_x][mine_y] == 11) {
-                k--;
-            }
-
-            grid[mine_x][mine_y] = mine_value;
-
-        }
-
-        return grid;
-    }
-
-    public int[][] generateA2(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 12, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || grid[mine_x][mine_y] == 12) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateB1(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 21, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || grid[mine_x][mine_y] == 21) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateB2(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
+            switch (c_num) {
+                case 11:
+                    if (grid[mine_x][mine_y] == 11) {
+                        k--;
+                    }
+                    grid[mine_x][mine_y] = mine_value;
+                    break;
+                case 12:
+                    if (a1Grid[mine_x][mine_y] == 11 || grid[mine_x][mine_y] == 12) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 21:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || grid[mine_x][mine_y] == 21) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 22:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || grid[mine_x][mine_y] == 22) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 23:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || grid[mine_x][mine_y] == 23) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 31:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || grid[mine_x][mine_y] == 31) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 32:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || grid[mine_x][mine_y] == 32) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
+                case 33:
+                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || c2Grid[mine_x][mine_y] == 32 || grid[mine_x][mine_y] == 33) {
+                        k--;
+                    } else {
+                        grid[mine_x][mine_y] = mine_value;
+                    }
+                    break;
             }
         }
-
-        int mine_value = 22, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || grid[mine_x][mine_y] == 22) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateB3(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 23, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || grid[mine_x][mine_y] == 23) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateC1(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 31, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || grid[mine_x][mine_y] == 31) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateC2(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 32, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || grid[mine_x][mine_y] == 32) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
-        return grid;
-    }
-
-    public int[][] generateC3(int grid_x, int grid_y, int asp_count) {
-
-        int[][] grid = new int[10][10];
-        for (int n = 0; n < grid_x; n++) {
-            for (int m = 0; m < grid_y; m++) {
-                grid[n][m] = 0;
-            }
-        }
-
-        int mine_value = 33, mine_x, mine_y;
-
-        for (int k = 0; k < asp_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-            if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || c2Grid[mine_x][mine_y] == 32 || grid[mine_x][mine_y] == 33) {
-                k--;
-            } else {
-                grid[mine_x][mine_y] = mine_value;
-            }
-
-        }
+        
         return grid;
     }
 
