@@ -17,6 +17,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import javax.swing.JOptionPane;
 
 public class Minesweeper extends Game {
 
@@ -29,28 +30,36 @@ public class Minesweeper extends Game {
 
     Texture coveredTexture;
     Texture blankTexture;
+    int[][] player;
+
+    int[][] propsGrid;   //地圖每一格的真實狀態
 
     // 必修 //
-    int[][] a1Grid;
-    int[][] a2Grid;
     Texture a1Texture;
     Texture a2Texture;
 
     // EC //
-    int[][] b1Grid;
-    int[][] b2Grid;
-    int[][] b3Grid;
     Texture b1Texture;
     Texture b2Texture;
     Texture b3Texture;
 
     // IDIC //
-    int[][] c1Grid;
-    int[][] c2Grid;
-    int[][] c3Grid;
     Texture c1Texture;
     Texture c2Texture;
     Texture c3Texture;
+
+    // ERP //
+    Texture d1Texture;
+    Texture d2Texture;
+    Texture d3Texture;
+
+    // Design //
+    Texture e1Texture;
+    Texture e2Texture;
+    Texture e3Texture;
+
+    //道具
+    Texture propsTexture;
 
     // tile width and height
     float width = 64;
@@ -66,21 +75,34 @@ public class Minesweeper extends Game {
         batch = new SpriteBatch();
 
         // 必修 //
-        a1Texture = new Texture(Gdx.files.internal("3_1.png"));
-        a2Texture = new Texture(Gdx.files.internal("3_2.png"));
+        a1Texture = new Texture(Gdx.files.internal("super.png"));
+        a2Texture = new Texture(Gdx.files.internal("super2.png"));
 
         // market //
-        b1Texture = new Texture(Gdx.files.internal("1_1.png"));
-        b2Texture = new Texture(Gdx.files.internal("1_2.png"));
-        b3Texture = new Texture(Gdx.files.internal("1_3.png"));
+        b1Texture = new Texture(Gdx.files.internal("red.png"));
+        b2Texture = new Texture(Gdx.files.internal("red.png"));
+        b3Texture = new Texture(Gdx.files.internal("red.png"));
 
         // idic //
-        c1Texture = new Texture(Gdx.files.internal("2_1.png"));
-        c2Texture = new Texture(Gdx.files.internal("2_2.png"));
-        c3Texture = new Texture(Gdx.files.internal("2_3.png"));
+        c1Texture = new Texture(Gdx.files.internal("white.png"));
+        c2Texture = new Texture(Gdx.files.internal("white.png"));
+        c3Texture = new Texture(Gdx.files.internal("white.png"));
 
-        coveredTexture = new Texture(Gdx.files.internal("covered.png"));    // 藍色覆蓋
-        blankTexture = new Texture(Gdx.files.internal("blank.png"));    // 灰色底圖
+        // ERP //
+        d1Texture = new Texture(Gdx.files.internal("orange.png"));
+        d2Texture = new Texture(Gdx.files.internal("orange.png"));
+        d3Texture = new Texture(Gdx.files.internal("orange.png"));
+
+        // Design //
+        e1Texture = new Texture(Gdx.files.internal("blue.png"));
+        e2Texture = new Texture(Gdx.files.internal("blue.png"));
+        e3Texture = new Texture(Gdx.files.internal("blue.png"));
+
+        //道具
+        propsTexture = new Texture(Gdx.files.internal("prop.png"));
+
+        coveredTexture = new Texture(Gdx.files.internal("flower.png"));    // 藍色覆蓋
+        blankTexture = new Texture(Gdx.files.internal("gg.png"));    // 灰色底圖
 
         shapeRenderer = new ShapeRenderer();
 
@@ -91,20 +113,15 @@ public class Minesweeper extends Game {
                 initTiles(i, j);
             }
         }
+        player = new int[5][3];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                player[i][j] = 0;
+            }
+        }
 
-        // 必修 //
-        a1Grid = generate(10, 10, 2,11);
-        a2Grid = generate(10, 10, 2,12);
-
-        // EC //
-        b1Grid = generate(10, 10, 3,21);
-        b2Grid = generate(10, 10, 3,22);
-        b3Grid = generate(10, 10, 3,23);
-
-        // IDIC //
-        c1Grid = generate(10, 10, 3,31);
-        c2Grid = generate(10, 10, 3,32);
-        c3Grid = generate(10, 10, 3,33);
+        // 隨機產生地圖物件
+        propsGrid = generate(12, 12);
 
         // 這邊應該是在做玩家連線的
         MyGestureListener mgl = new MyGestureListener();
@@ -132,7 +149,7 @@ public class Minesweeper extends Game {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(255,255,255,0);
+        Gdx.gl.glClearColor(255, 255, 255, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -168,15 +185,48 @@ public class Minesweeper extends Game {
                 texture = c2Texture;
             } else if (state == 33) {
                 texture = c3Texture;
+            } else if (state == 41) {
+                texture = d1Texture;
+            } else if (state == 42) {
+                texture = d2Texture;
+            } else if (state == 43) {
+                texture = d3Texture;
+            } else if (state == 51) {
+                texture = e1Texture;
+            } else if (state == 52) {
+                texture = e2Texture;
+            } else if (state == 53) {
+                texture = e3Texture;
+            } else if (state == 61 || state == 62 || state == 63 || state == 64 || state == 65 || state == 66 || state == 67 || state == 68) {
+                texture = propsTexture;
             }
             batch.draw(texture, tile.x, tile.y, 64, 64);
         }
         batch.end();
 
-//        drawGrid();
-
+        drawGrid();
     }
 
+    
+    private void drawGrid() {
+		float x;
+		float y;
+		Gdx.gl20.glLineWidth(4 / camera.zoom); // line width
+		shapeRenderer.setProjectionMatrix(camera.combined);
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(Color.BLACK);
+		for (int i = 0; i <= 12; i++) {
+			for (int j = 0; j <= 12; j++) {
+				x = 0 + i * 64;
+				y = 0 + j * 64;
+				shapeRenderer.line(x, y, x, y + height);
+				shapeRenderer.line(x, y, x + width, y);
+
+			}
+		}
+		shapeRenderer.end();
+	}
+    
     /**
      * 畫面生成和判斷
      */
@@ -187,36 +237,87 @@ public class Minesweeper extends Game {
 
         int col = (int) Math.floor(touchPos.x / 64);
         int row = (int) Math.floor(touchPos.y / 64);
-
         showTile(col, row);
-        if (isA1(col, row)) {
-            tileGrid[col][row] = 11;
-        }
-        if (isA2(col, row)) {
-            tileGrid[col][row] = 12;
-        }
-        if (isB1(col, row)) {
-            tileGrid[col][row] = 21;
-        }
-        if (isB2(col, row)) {
-            tileGrid[col][row] = 22;
-        }
-        if (isB3(col, row)) {
-            tileGrid[col][row] = 23;
-        }
-        if (isC1(col, row)) {
-            tileGrid[col][row] = 31;
-        }
-        if (isC2(col, row)) {
-            tileGrid[col][row] = 32;
-        }
-        if (isC3(col, row)) {
-            tileGrid[col][row] = 33;
+        judgePlayer(col, row);
+
+        if (isNoWinning()) {
+            int a = JOptionPane.showConfirmDialog(null, "這局無輸贏，是否重來", "遊戲提示", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (a == 0) {
+                create();
+            }
         }
     }
 
+    private void judgePlayer(int x, int y) {
+        int playerchoose = propsGrid[x][y];
+
+        switch (playerchoose) {
+            case 11:
+                player[0][0]++;
+                break;
+            case 12:
+                player[0][1]++;
+                break;
+            case 21:
+                player[1][0]++;
+                break;
+            case 22:
+                player[1][1]++;
+                break;
+            case 23:
+                player[1][2]++;
+                break;
+            case 31:
+                player[2][0]++;
+                break;
+            case 32:
+                player[2][1]++;
+                break;
+            case 33:
+                player[2][2]++;
+                break;
+            case 41:
+                player[3][0]++;
+                break;
+            case 42:
+                player[3][1]++;
+                break;
+            case 43:
+                player[3][2]++;
+                break;
+            case 51:
+                player[4][0]++;
+                break;
+            case 52:
+                player[4][1]++;
+                break;
+            case 53:
+                player[4][2]++;
+                break;
+
+        }
+        printGrid(player, 5, 3);
+
+    }
+
+    private void VictoryFactor() {
+        if (player[0][0] > 0 && player[0][1] > 0) {
+            if (player[1][0] > 0 && player[1][1] > 0 && player[1][2] > 0) {
+                System.out.println("恭喜您已修完網路行銷學程可以畢業囉!!!");
+            } else if (player[2][0] > 0 && player[2][1] > 0 && player[2][2] > 0) {
+                System.out.println("恭喜您已修完資通訊學程可以畢業囉!!!");
+            } else if (player[3][0] > 0 && player[3][1] > 0 && player[3][2] > 0) {
+                System.out.println("恭喜您已修完ERP學程可以畢業囉!!!");
+            } else if (player[4][0] > 0 && player[4][1] > 0 && player[4][2] > 0) {
+                System.out.println("恭喜您已修完互動設計學程可以畢業囉!!!");
+            }
+        }
+
+    }
+
     /**
-     * 執行
+     * 畫黑線
      */
 //    private void drawGrid() {
 //        float x;
@@ -236,157 +337,167 @@ public class Minesweeper extends Game {
 //        }
 //        shapeRenderer.end();
 //    }
-
     /**
      * 畫面設定
      */
     private void showTile(int x, int y) {
-        int a1 = a1Grid[x][y];
-        int a2 = a2Grid[x][y];
-        int b1 = b1Grid[x][y];
-        int b2 = b2Grid[x][y];
-        int b3 = b3Grid[x][y];
-        int c1 = c1Grid[x][y];
-        int c2 = c2Grid[x][y];
-        int c3 = c3Grid[x][y];
+        int props = propsGrid[x][y];
 
-        if (a1 == 11) {
-            tileGrid[x][y] = 11;
-        } else if (a2 == 12) {
-            tileGrid[x][y] = 12;
-        } else if (b1 == 21) {
-            tileGrid[x][y] = 21;
-        } else if (b2 == 22) {
-            tileGrid[x][y] = 22;
-        } else if (b3 == 23) {
-            tileGrid[x][y] = 23;
-        } else if (c1 == 31) {
-            tileGrid[x][y] = 31;
-        } else if (c2 == 32) {
-            tileGrid[x][y] = 32;
-        } else if (c3 == 33) {
-            tileGrid[x][y] = 33;
-        } else {
+        if (props == 0) {
             tileGrid[x][y] = 1;
+        } else {
+            tileGrid[x][y] = props;
         }
 
+        printGrid(tileGrid, 12, 12);
     }
 
-    public int[][] generate(int grid_x, int grid_y, int db_count, int c_num) {
-        int[][] grid = new int[10][10];
+    public int[][] generate(int grid_x, int grid_y) {
+        int[][] grid = new int[12][12];
+        int db_count = 0, c_num = 0;
         for (int n = 0; n < grid_x; n++) {
             for (int m = 0; m < grid_y; m++) {
                 grid[n][m] = 0;
             }
         }
-
-        int mine_value = c_num, mine_x, mine_y;
-
-        for (int k = 0; k < db_count; k++) {
-            mine_x = (int) Math.floor(Math.random() * grid_x);
-            mine_y = (int) Math.floor(Math.random() * grid_y);
-
-            switch (c_num) {
+        printGrid(grid, 12, 12);
+        for (int i = 0; i < 22; i++) {
+            switch (i) {
+                case 0:
+                    db_count = 2;
+                    c_num = 11;
+                    break;
+                case 1:
+                    db_count = 2;
+                    c_num = 12;
+                    break;
+                case 2:
+                    db_count = 3;
+                    c_num = 21;
+                    break;
+                case 3:
+                    db_count = 3;
+                    c_num = 22;
+                    break;
+                case 4:
+                    db_count = 3;
+                    c_num = 23;
+                    break;
+                case 5:
+                    db_count = 3;
+                    c_num = 31;
+                    break;
+                case 6:
+                    db_count = 3;
+                    c_num = 32;
+                    break;
+                case 7:
+                    db_count = 3;
+                    c_num = 33;
+                    break;
+                case 8:
+                    db_count = 3;
+                    c_num = 41;
+                    break;
+                case 9:
+                    db_count = 3;
+                    c_num = 42;
+                    break;
+                case 10:
+                    db_count = 3;
+                    c_num = 43;
+                    break;
                 case 11:
-                    if (grid[mine_x][mine_y] == 11) {
-                        k--;
-                    }
-                    grid[mine_x][mine_y] = mine_value;
+                    db_count = 3;
+                    c_num = 51;
                     break;
                 case 12:
-                    if (a1Grid[mine_x][mine_y] == 11 || grid[mine_x][mine_y] == 12) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
+                    db_count = 3;
+                    c_num = 52;
+                    break;
+                case 13:
+                    db_count = 3;
+                    c_num = 53;
+                    break;
+                case 14:
+                    db_count = 5;
+                    c_num = 61;
+                    break;
+                case 15:
+                    db_count = 3;
+                    c_num = 62;
+                    break;
+                case 16:
+                    db_count = 2;
+                    c_num = 63;
+                    break;
+                case 17:
+                    db_count = 1;
+                    c_num = 64;
+                    break;
+                case 18:
+                    db_count = 2;
+                    c_num = 65;
+                    break;
+                case 19:
+                    db_count = 1;
+                    c_num = 66;
+                    break;
+                case 20:
+                    db_count = 5;
+                    c_num = 67;
                     break;
                 case 21:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || grid[mine_x][mine_y] == 21) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
+                    db_count = 2;
+                    c_num = 68;
                     break;
-                case 22:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || grid[mine_x][mine_y] == 22) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
-                    break;
-                case 23:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || grid[mine_x][mine_y] == 23) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
-                    break;
-                case 31:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || grid[mine_x][mine_y] == 31) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
-                    break;
-                case 32:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || grid[mine_x][mine_y] == 32) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
-                    break;
-                case 33:
-                    if (a1Grid[mine_x][mine_y] == 11 || a2Grid[mine_x][mine_y] == 12 || b1Grid[mine_x][mine_y] == 21 || b2Grid[mine_x][mine_y] == 22 || b3Grid[mine_x][mine_y] == 23 || c1Grid[mine_x][mine_y] == 31 || c2Grid[mine_x][mine_y] == 32 || grid[mine_x][mine_y] == 33) {
-                        k--;
-                    } else {
-                        grid[mine_x][mine_y] = mine_value;
-                    }
-                    break;
+
             }
+            int mine_x, mine_y;
+            for (int k = 0; k < db_count; k++) {
+                mine_x = (int) Math.floor(Math.random() * grid_x);
+                mine_y = (int) Math.floor(Math.random() * grid_y);
+                if (grid[mine_x][mine_y] != 0) {
+                    k--;
+                } else {
+                    grid[mine_x][mine_y] = c_num;
+                }
+
+            }
+
         }
-        
+        printGrid(grid, 12, 12);
         return grid;
     }
 
-    //  必修  //
-    public boolean isA1(int x, int y) {
-        return (0 < a1Grid[x][y]);
+    public boolean isHidden(int x, int y) { //判斷是否按完了
+        return (0 == tileGrid[x][y]);
     }
 
-    public boolean isA2(int x, int y) {
-        return (0 < a2Grid[x][y]);
+    public boolean isNoWinning() {//沒輸沒贏
+        int hiddenTiles = 0;
+
+        for (int x = 0; x < 12; x++) {
+            for (int y = 0; y < 12; y++) {
+                if (isHidden(x, y)) {
+                    hiddenTiles++;
+                }
+            }
+        }
+
+        return (0 == hiddenTiles);//沒有數字全踩完嚕
     }
 
-    //  EC  //
-    public boolean isB1(int x, int y) {
-        return (0 < b1Grid[x][y]);
+    private void printGrid(int[][] grid, int x, int y) {
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                System.out.printf("%d ", grid[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
-    public boolean isB2(int x, int y) {
-        return (0 < b2Grid[x][y]);
-    }
-
-    public boolean isB3(int x, int y) {
-        return (0 < b3Grid[x][y]);
-    }
-
-    //  IDIC  //
-    public boolean isC1(int x, int y) {
-        return (0 < c1Grid[x][y]);
-    }
-
-    public boolean isC2(int x, int y) {
-        return (0 < c2Grid[x][y]);
-    }
-
-    public boolean isC3(int x, int y) {
-        return (0 < c3Grid[x][y]);
-    }
-
-// public boolean isC3(int x, int y,int aaa[][]) {
-//        return (0 < aaa[x][y]);
-//    }
-//    
     // 不知道幹嘛用的 //
     @Override
     public void dispose() {
