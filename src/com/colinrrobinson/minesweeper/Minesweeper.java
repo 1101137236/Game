@@ -27,64 +27,56 @@ public class Minesweeper extends Game {
 
     HashMap<Integer, Rectangle> tiles;
     int[][] tileGrid;
-
-    Texture coveredTexture;
-    Texture blankTexture;
     int[][] player;
-
     int[][] propsGrid;   //地圖每一格的真實狀態
 
-    Texture testTexture;
+    // 寶藏跟大白菜
+    Texture coveredTexture;
+    Texture blankTexture;
+    
+    // 玩家 
     Texture playerATexture;
     Texture playerBTexture;
 
+    // 課程書
     Texture orangeTexture;
     Texture redTexture;
     Texture whiteTexture;
     Texture blueTexture;
 
+    // 必修
     Texture javaTexture;
     Texture ecTexture;
+    
+    // 網路行銷課程
     Texture c11Texture;
     Texture c12Texture;
     Texture c13Texture;
+    
+    // idic課程
     Texture c21Texture;
     Texture c22Texture;
     Texture c23Texture;
+    
+    // erp課程
     Texture c31Texture;
     Texture c32Texture;
     Texture c33Texture;
+    
+    // 互動設計課程
     Texture c41Texture;
     Texture c42Texture;
     Texture c43Texture;
+    
+    // 分數
     Texture n0Texture;
     Texture n1Texture;
     Texture n2Texture;
     Texture n3Texture;
 
-    // 必修 //
-    Texture a1Texture;
-    Texture a2Texture;
-
-    // EC //
-    Texture b1Texture;
-    Texture b2Texture;
-    Texture b3Texture;
-
-    // IDIC //
-    Texture c1Texture;
-    Texture c2Texture;
-    Texture c3Texture;
-
-    // ERP //
-    Texture d1Texture;
-    Texture d2Texture;
-    Texture d3Texture;
-
-    // Design //
-    Texture e1Texture;
-    Texture e2Texture;
-    Texture e3Texture;
+    // 卷軸*2
+    Texture ecInMapTexture;
+    Texture javaInMapTexture;
 
     //道具
     Texture propsTexture;
@@ -103,41 +95,32 @@ public class Minesweeper extends Game {
         batch = new SpriteBatch();
 
         // 必修 //
-        a1Texture = new Texture(Gdx.files.internal("super.png"));
-        a2Texture = new Texture(Gdx.files.internal("super2.png"));
+        ecInMapTexture = new Texture(Gdx.files.internal("ecInMap.png"));
+        javaInMapTexture = new Texture(Gdx.files.internal("javaInMap.png"));
 
         // market //
-        b1Texture = new Texture(Gdx.files.internal("blue.png"));
-        b2Texture = new Texture(Gdx.files.internal("blue.png"));
-        b3Texture = new Texture(Gdx.files.internal("blue.png"));
+        blueTexture = new Texture(Gdx.files.internal("blue.png"));
 
         // idic //
-        c1Texture = new Texture(Gdx.files.internal("red.png"));
-        c2Texture = new Texture(Gdx.files.internal("red.png"));
-        c3Texture = new Texture(Gdx.files.internal("red.png"));
+        redTexture = new Texture(Gdx.files.internal("red.png"));
 
         // ERP //
-        d1Texture = new Texture(Gdx.files.internal("white.png"));
-        d2Texture = new Texture(Gdx.files.internal("white.png"));
-        d3Texture = new Texture(Gdx.files.internal("white.png"));
+        whiteTexture = new Texture(Gdx.files.internal("white.png"));
 
         // Design //
-        e1Texture = new Texture(Gdx.files.internal("orange.png"));
-        e2Texture = new Texture(Gdx.files.internal("orange.png"));
-        e3Texture = new Texture(Gdx.files.internal("orange.png"));
+        orangeTexture = new Texture(Gdx.files.internal("orange.png"));
 
         //道具
         propsTexture = new Texture(Gdx.files.internal("prop.png"));
 
-        coveredTexture = new Texture(Gdx.files.internal("flower.png"));    // 藍色覆蓋
-        blankTexture = new Texture(Gdx.files.internal("gg.png"));    // 灰色底圖
+        coveredTexture = new Texture(Gdx.files.internal("treasure.png"));    
+        blankTexture = new Texture(Gdx.files.internal("vegetable.png"));
 
-        testTexture = new Texture(Gdx.files.internal("blank.png"));    // 灰色底圖
         playerATexture = new Texture(Gdx.files.internal("A.png"));
         playerBTexture = new Texture(Gdx.files.internal("B.png"));
-        
-        javaTexture = new Texture(Gdx.files.internal("java.png"));
+
         ecTexture = new Texture(Gdx.files.internal("ec.png"));
+        javaTexture = new Texture(Gdx.files.internal("java.png"));
 
         c11Texture = new Texture(Gdx.files.internal("1_1.png"));
         c12Texture = new Texture(Gdx.files.internal("1_2.png"));
@@ -156,11 +139,6 @@ public class Minesweeper extends Game {
         n2Texture = new Texture(Gdx.files.internal("02.png"));
         n3Texture = new Texture(Gdx.files.internal("03.png"));
 
-        blueTexture = new Texture(Gdx.files.internal("blue.png"));
-        redTexture = new Texture(Gdx.files.internal("red.png"));
-        whiteTexture = new Texture(Gdx.files.internal("white.png"));
-        orangeTexture = new Texture(Gdx.files.internal("orange.png"));
-
         shapeRenderer = new ShapeRenderer();
 
         tiles = new HashMap<Integer, Rectangle>();  // 初始化地圖的大小（？
@@ -170,11 +148,6 @@ public class Minesweeper extends Game {
                 initTiles(i, j, 0, 64, 64);
             }
         }
-//        for (int i = 12; i < 22; i++) {
-//            for (int j = 0; j < 12; j++) {
-//                initTiles(i, j, -1, 64, 64);
-//            }
-//        }
 
         player = new int[5][3];
         for (int i = 0; i < 5; i++) {
@@ -233,45 +206,27 @@ public class Minesweeper extends Game {
             } else if (state == 1) {
                 texture = blankTexture;
             } else if (state == 11) {
-                texture = a1Texture;
+                texture = ecInMapTexture;
             } else if (state == 12) {
-                texture = a2Texture;
-            } else if (state == 21) {
-                texture = b1Texture;
-            } else if (state == 22) {
-                texture = b2Texture;
-            } else if (state == 23) {
-                texture = b3Texture;
-            } else if (state == 31) {
-                texture = c1Texture;
-            } else if (state == 32) {
-                texture = c2Texture;
-            } else if (state == 33) {
-                texture = c3Texture;
-            } else if (state == 41) {
-                texture = d1Texture;
-            } else if (state == 42) {
-                texture = d2Texture;
-            } else if (state == 43) {
-                texture = d3Texture;
-            } else if (state == 51) {
-                texture = e1Texture;
-            } else if (state == 52) {
-                texture = e2Texture;
-            } else if (state == 53) {
-                texture = e3Texture;
+                texture = javaInMapTexture;
+            } else if (state == 21 || state == 22 || state == 23) {
+                texture = blueTexture;
+            } else if (state == 31 || state == 32 || state == 33) {
+                texture = redTexture;
+            } else if (state == 41 || state == 42 || state == 43) {
+                texture = whiteTexture;
+            } else if (state == 51 || state == 52 || state == 53) {
+                texture = orangeTexture;
             } else if (state == 61 || state == 62 || state == 63 || state == 64 || state == 65 || state == 66 || state == 67 || state == 68) {
                 texture = propsTexture;
-            } 
-//            else if (state == -1) {
-//                texture = testTexture;
-//            }
+            }
+           
             batch.draw(texture, tile.x, tile.y, 64, 64);
         }
-        
+
         // A //
         batch.draw(playerATexture, 798, 704, 64, 64);
-        
+
         batch.draw(blueTexture, 798, 576, 64, 64);
         batch.draw(c11Texture, 862, 576, 64, 64);
         batch.draw(n0Texture, 926, 576, 64, 64);
@@ -279,7 +234,7 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 576, 64, 64);
         batch.draw(c13Texture, 1118, 576, 64, 64);
         batch.draw(n0Texture, 1182, 576, 64, 64);
-        
+
         batch.draw(redTexture, 798, 512, 64, 64);
         batch.draw(c21Texture, 862, 512, 64, 64);
         batch.draw(n0Texture, 926, 512, 64, 64);
@@ -287,7 +242,7 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 512, 64, 64);
         batch.draw(c23Texture, 1118, 512, 64, 64);
         batch.draw(n0Texture, 1182, 512, 64, 64);
-        
+
         batch.draw(whiteTexture, 798, 448, 64, 64);
         batch.draw(c31Texture, 862, 448, 64, 64);
         batch.draw(n0Texture, 926, 448, 64, 64);
@@ -295,30 +250,29 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 448, 64, 64);
         batch.draw(c33Texture, 1118, 448, 64, 64);
         batch.draw(n0Texture, 1182, 448, 64, 64);
-        
+
         batch.draw(orangeTexture, 798, 384, 64, 64);
         batch.draw(c41Texture, 862, 384, 64, 64);
         batch.draw(n0Texture, 926, 384, 64, 64);
         batch.draw(c42Texture, 990, 384, 64, 64);
         batch.draw(n0Texture, 1054, 384, 64, 64);
         batch.draw(c43Texture, 1118, 384, 64, 64);
-        batch.draw(n3Texture, 1182, 384, 64, 64);
-        
-        batch.draw(a1Texture, 1246, 576, 64, 64);
-        batch.draw(javaTexture, 1310, 576, 64, 64);
-        batch.draw(n2Texture, 1374, 576, 64, 64);
-        
-        batch.draw(a2Texture, 1246, 512, 64, 64);
-        batch.draw(ecTexture, 1310, 512, 64, 64);
-        batch.draw(n1Texture, 1374, 512, 64, 64);
-        
+        batch.draw(n0Texture, 1182, 384, 64, 64);
+
+        batch.draw(ecInMapTexture, 1246, 576, 64, 64);
+        batch.draw(ecTexture, 1310, 576, 64, 64);
+        batch.draw(n0Texture, 1374, 576, 64, 64);
+
+        batch.draw(javaInMapTexture, 1246, 512, 64, 64);
+        batch.draw(javaTexture, 1310, 512, 64, 64);
+        batch.draw(n0Texture, 1374, 512, 64, 64);
+
         batch.draw(propsTexture, 1246, 448, 64, 64);
         batch.draw(n0Texture, 1310, 448, 64, 64);
 
-
         // B //
         batch.draw(playerBTexture, 798, 320, 64, 64);
-        
+
         batch.draw(blueTexture, 798, 192, 64, 64);
         batch.draw(c11Texture, 862, 192, 64, 64);
         batch.draw(n0Texture, 926, 192, 64, 64);
@@ -326,7 +280,7 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 192, 64, 64);
         batch.draw(c13Texture, 1118, 192, 64, 64);
         batch.draw(n0Texture, 1182, 192, 64, 64);
-        
+
         batch.draw(redTexture, 798, 128, 64, 64);
         batch.draw(c21Texture, 862, 128, 64, 64);
         batch.draw(n0Texture, 926, 128, 64, 64);
@@ -334,7 +288,7 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 128, 64, 64);
         batch.draw(c23Texture, 1118, 128, 64, 64);
         batch.draw(n0Texture, 1182, 128, 64, 64);
-        
+
         batch.draw(whiteTexture, 798, 64, 64, 64);
         batch.draw(c31Texture, 862, 64, 64, 64);
         batch.draw(n0Texture, 926, 64, 64, 64);
@@ -342,33 +296,76 @@ public class Minesweeper extends Game {
         batch.draw(n0Texture, 1054, 64, 64, 64);
         batch.draw(c33Texture, 1118, 64, 64, 64);
         batch.draw(n0Texture, 1182, 64, 64, 64);
-        
+
         batch.draw(orangeTexture, 798, 0, 64, 64);
         batch.draw(c41Texture, 862, 0, 64, 64);
         batch.draw(n0Texture, 926, 0, 64, 64);
         batch.draw(c42Texture, 990, 0, 64, 64);
         batch.draw(n0Texture, 1054, 0, 64, 64);
         batch.draw(c43Texture, 1118, 0, 64, 64);
-        batch.draw(n3Texture, 1182, 0, 64, 64);
-        
-        batch.draw(a1Texture, 1246, 192, 64, 64);
-        batch.draw(javaTexture, 1310, 192, 64, 64);
-        batch.draw(n2Texture, 1374, 192, 64, 64);
-        
-        batch.draw(a2Texture, 1246, 128, 64, 64);
-        batch.draw(ecTexture, 1310, 128, 64, 64);
-        batch.draw(n1Texture, 1374, 128, 64, 64);
-        
+        batch.draw(n0Texture, 1182, 0, 64, 64);
+
+        batch.draw(ecInMapTexture, 1246, 192, 64, 64);
+        batch.draw(ecTexture, 1310, 192, 64, 64);
+        batch.draw(n0Texture, 1374, 192, 64, 64);
+
+        batch.draw(javaInMapTexture, 1246, 128, 64, 64);
+        batch.draw(javaTexture, 1310, 128, 64, 64);
+        batch.draw(n0Texture, 1374, 128, 64, 64);
+
         batch.draw(propsTexture, 1246, 64, 64, 64);
         batch.draw(n0Texture, 1310, 64, 64, 64);
         
-        
-        
-        
-        
-        
-        
-        
+        Texture texture1 = n0Texture;
+         int xline = 0, yline = 0;
+
+            for (int x = 0; x < 5; x++) {
+                for (int y = 0; y < 3; y++) {
+                    if (x == 0 && y == 0) {
+                        xline = 1374;
+                        yline = 576;
+                    } else if (x == 0 && y == 1) {
+                        xline = 1374;
+                        yline = 512;
+                    } else {
+                        if (x == 1) {
+                            yline = 576;
+                        }
+                        if (x == 2) {
+                            yline = 512;
+                        }
+                        if (x == 3) {
+                            yline = 448;
+                        }
+                        if (x == 4) {
+                            yline = 384;
+                        }
+                        if (y == 0) {
+                            xline = 926;
+                        }
+                        if (y == 1) {
+                            xline = 1054;
+                        }
+                        if (y == 2) {
+                            xline = 1182;
+                        }
+
+                    }
+
+                    if (player[x][y] == 0) {
+                        texture1 = n0Texture;
+                    } else if (player[x][y] == 1) {
+                        texture1 = n1Texture;
+                    } else if (player[x][y] == 2) {
+                        texture1 = n2Texture;
+                    } else if (player[x][y] == 3) {
+                        texture1 = n3Texture;
+                    }
+                    batch.draw(texture1, xline, yline, 64, 64);
+                }
+
+            }
+
         batch.end();
 
         drawGrid();
@@ -406,7 +403,7 @@ public class Minesweeper extends Game {
         int row = (int) Math.floor(touchPos.y / 64);
         showTile(col, row);
         judgePlayer(col, row);
-
+        VictoryFactor();
         if (isNoWinning()) {
             int a = JOptionPane.showConfirmDialog(null, "這局無輸贏，是否重來", "遊戲提示", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
@@ -418,6 +415,7 @@ public class Minesweeper extends Game {
 
     private void judgePlayer(int x, int y) {
         int playerchoose = propsGrid[x][y];
+        camera.update();
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
@@ -425,14 +423,12 @@ public class Minesweeper extends Game {
         switch (playerchoose) {
             case 11:
                 player[0][0]++;
-                
                 break;
             case 12:
                 player[0][1]++;
                 break;
             case 21:
                 player[1][0]++;
-                batch.draw(n1Texture, 926, 576, 64, 64);
                 break;
             case 22:
                 player[1][1]++;
