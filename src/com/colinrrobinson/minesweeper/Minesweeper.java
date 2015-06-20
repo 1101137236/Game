@@ -27,64 +27,42 @@ public class Minesweeper extends Game {
 
     HashMap<Integer, Rectangle> tiles;
     int[][] tileGrid;
-    int[][] player;
+    int[][] playerA;
+    int[][] playerB;
+    int[][] temporary;
     int[][] propsGrid;   //地圖每一格的真實狀態
 
-    // 寶藏跟大白菜
-    Texture coveredTexture;
-    Texture blankTexture;
-    
-    // 玩家 
-    Texture playerATexture;
-    Texture playerBTexture;
+    // 寶藏跟大白菜跟道具
+    Texture coveredTexture, blankTexture, propsTexture;
 
-    // 課程書
-    Texture orangeTexture;
-    Texture redTexture;
-    Texture whiteTexture;
-    Texture blueTexture;
+    // 玩家跟背景圖
+    Texture infoBackgroundTexture, playerATexture, playerBTexture;
 
-    // 必修
-    Texture javaTexture;
-    Texture ecTexture;
-    
+    // 課程書跟必修
+    Texture orangeTexture, redTexture, whiteTexture, blueTexture, javaTexture, ecTexture;
+
     // 網路行銷課程
-    Texture c11Texture;
-    Texture c12Texture;
-    Texture c13Texture;
-    
+    Texture c11Texture, c12Texture, c13Texture;
+
     // idic課程
-    Texture c21Texture;
-    Texture c22Texture;
-    Texture c23Texture;
-    
+    Texture c21Texture, c22Texture, c23Texture;
+
     // erp課程
-    Texture c31Texture;
-    Texture c32Texture;
-    Texture c33Texture;
-    
+    Texture c31Texture, c32Texture, c33Texture;
+
     // 互動設計課程
-    Texture c41Texture;
-    Texture c42Texture;
-    Texture c43Texture;
-    
+    Texture c41Texture, c42Texture, c43Texture;
+
     // 分數
-    Texture n0Texture;
-    Texture n1Texture;
-    Texture n2Texture;
-    Texture n3Texture;
+    Texture n0Texture, n1Texture, n2Texture, n3Texture;
 
-    // 卷軸*2
-    Texture ecInMapTexture;
-    Texture javaInMapTexture;
-
-    //道具
-    Texture propsTexture;
+    // 必修卷軸*2
+    Texture ecInMapTexture, javaInMapTexture;
 
     // tile width and height
     float width = 64;
-    float height = 0;
-    int grid_x = 15;
+    float height = 64;
+    int grid_x = 12;
     int grid_y = 12;
 
     @Override
@@ -113,7 +91,7 @@ public class Minesweeper extends Game {
         //道具
         propsTexture = new Texture(Gdx.files.internal("prop.png"));
 
-        coveredTexture = new Texture(Gdx.files.internal("treasure.png"));    
+        coveredTexture = new Texture(Gdx.files.internal("treasure.png"));
         blankTexture = new Texture(Gdx.files.internal("vegetable.png"));
 
         playerATexture = new Texture(Gdx.files.internal("A.png"));
@@ -139,42 +117,56 @@ public class Minesweeper extends Game {
         n2Texture = new Texture(Gdx.files.internal("02.png"));
         n3Texture = new Texture(Gdx.files.internal("03.png"));
 
+        infoBackgroundTexture = new Texture(Gdx.files.internal("infoBackgroundTexture.png"));
+
         shapeRenderer = new ShapeRenderer();
 
-        tiles = new HashMap<Integer, Rectangle>();  // 初始化地圖的大小（？
+        tiles = new HashMap<Integer, Rectangle>();
         tileGrid = new int[24][12];
+
+        // 左邊背景
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 initTiles(i, j, 0, 64, 64);
             }
         }
 
-        player = new int[5][3];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 3; j++) {
-                player[i][j] = 0;
+        // 右邊背景
+        for (int i = 12; i < 24; i++) {
+            for (int j = 0; j < 12; j++) {
+                initTiles(i, j, -1, 64, 64);
             }
         }
 
         // 隨機產生地圖物件
         propsGrid = generate(12, 12);
 
-        // 這邊應該是在做玩家連線的
+        playerA = new int[5][3];
+        playerB = new int[5][3];
+        temporary = new int[5][3];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                playerA[i][j] = 0;
+                playerB[i][j] = 0;
+                temporary[i][j] = 0;
+            }
+        }
+
+        // 玩家連線的
         MyGestureListener mgl = new MyGestureListener();
         mgl.setGame(this);
-        GestureDetector gd = new GestureDetector(mgl); // 偵測連線？
+        GestureDetector gd = new GestureDetector(mgl);
         Gdx.input.setInputProcessor(gd);
     }
 
     /**
-     * 應該是初始化地圖大小
+     * 初始化地圖
      */
     private void initTiles(int i, int j, int a, int in, int jn) {
         Rectangle tile = new Rectangle();
         // 藍色框框大小
         tile.x = 0 + i * in;
         tile.y = 0 + j * jn;
-        // 不知道幹嘛用的
         tile.width = 64;
         tile.height = 64;
 
@@ -219,8 +211,10 @@ public class Minesweeper extends Game {
                 texture = orangeTexture;
             } else if (state == 61 || state == 62 || state == 63 || state == 64 || state == 65 || state == 66 || state == 67 || state == 68) {
                 texture = propsTexture;
+            } else if (state == -1) {
+                texture = infoBackgroundTexture;
             }
-           
+
             batch.draw(texture, tile.x, tile.y, 64, 64);
         }
 
@@ -315,220 +309,74 @@ public class Minesweeper extends Game {
 
         batch.draw(propsTexture, 1246, 64, 64, 64);
         batch.draw(n0Texture, 1310, 64, 64, 64);
-        
+
         Texture texture1 = n0Texture;
-         int xline = 0, yline = 0;
+        int xline = 0, yline = 0;
 
-            for (int x = 0; x < 5; x++) {
-                for (int y = 0; y < 3; y++) {
-                    if (x == 0 && y == 0) {
-                        xline = 1374;
+        for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (x == 0 && y == 0) {
+                    xline = 1374;
+                    yline = 576;
+                } else if (x == 0 && y == 1) {
+                    xline = 1374;
+                    yline = 512;
+                } else {
+                    if (x == 1) {
                         yline = 576;
-                    } else if (x == 0 && y == 1) {
-                        xline = 1374;
+                    }
+                    if (x == 2) {
                         yline = 512;
-                    } else {
-                        if (x == 1) {
-                            yline = 576;
-                        }
-                        if (x == 2) {
-                            yline = 512;
-                        }
-                        if (x == 3) {
-                            yline = 448;
-                        }
-                        if (x == 4) {
-                            yline = 384;
-                        }
-                        if (y == 0) {
-                            xline = 926;
-                        }
-                        if (y == 1) {
-                            xline = 1054;
-                        }
-                        if (y == 2) {
-                            xline = 1182;
-                        }
-
+                    }
+                    if (x == 3) {
+                        yline = 448;
+                    }
+                    if (x == 4) {
+                        yline = 384;
+                    }
+                    if (y == 0) {
+                        xline = 926;
+                    }
+                    if (y == 1) {
+                        xline = 1054;
+                    }
+                    if (y == 2) {
+                        xline = 1182;
                     }
 
-                    if (player[x][y] == 0) {
-                        texture1 = n0Texture;
-                    } else if (player[x][y] == 1) {
-                        texture1 = n1Texture;
-                    } else if (player[x][y] == 2) {
-                        texture1 = n2Texture;
-                    } else if (player[x][y] == 3) {
-                        texture1 = n3Texture;
-                    }
-                    batch.draw(texture1, xline, yline, 64, 64);
                 }
 
+                if (playerA[x][y] == 0) {
+                    texture1 = n0Texture;
+                } else if (playerA[x][y] == 1) {
+                    texture1 = n1Texture;
+                } else if (playerA[x][y] == 2) {
+                    texture1 = n2Texture;
+                } else if (playerA[x][y] == 3) {
+                    texture1 = n3Texture;
+                }
+                batch.draw(texture1, xline, yline, 64, 64);
             }
+
+        }
 
         batch.end();
 
         drawGrid();
     }
 
-    private void drawGrid() {
-        float x;
-        float y;
-        Gdx.gl20.glLineWidth(1 / camera.zoom); // line width
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(Color.BLACK);
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 13; j++) {
-                x = 0 + i * 64;
-                y = 0 + j * 64;
-                shapeRenderer.line(x, 768, x, y);
-                shapeRenderer.line(x, y, 768, y);
-
-            }
-        }
-        shapeRenderer.line(768, 384, 1438, 384);
-        shapeRenderer.end();
-    }
-
     /**
-     * 畫面生成和判斷
+     * 亂數產生地圖物件
      */
-    public void processTouch() {
-        Vector3 touchPos = new Vector3();
-        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-        camera.unproject(touchPos);
-
-        int col = (int) Math.floor(touchPos.x / 64);
-        int row = (int) Math.floor(touchPos.y / 64);
-        showTile(col, row);
-        judgePlayer(col, row);
-        VictoryFactor();
-        if (isNoWinning()) {
-            int a = JOptionPane.showConfirmDialog(null, "這局無輸贏，是否重來", "遊戲提示", JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            if (a == 0) {
-                create();
-            }
-        }
-    }
-
-    private void judgePlayer(int x, int y) {
-        int playerchoose = propsGrid[x][y];
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-
-        batch.begin();
-
-        switch (playerchoose) {
-            case 11:
-                player[0][0]++;
-                break;
-            case 12:
-                player[0][1]++;
-                break;
-            case 21:
-                player[1][0]++;
-                break;
-            case 22:
-                player[1][1]++;
-                break;
-            case 23:
-                player[1][2]++;
-                break;
-            case 31:
-                player[2][0]++;
-                break;
-            case 32:
-                player[2][1]++;
-                break;
-            case 33:
-                player[2][2]++;
-                break;
-            case 41:
-                player[3][0]++;
-                break;
-            case 42:
-                player[3][1]++;
-                break;
-            case 43:
-                player[3][2]++;
-                break;
-            case 51:
-                player[4][0]++;
-                break;
-            case 52:
-                player[4][1]++;
-                break;
-            case 53:
-                player[4][2]++;
-                break;
-
-        }
-        printGrid(player, 5, 3);
-        batch.end();
-
-    }
-
-    private void VictoryFactor() {
-        if (player[0][0] > 0 && player[0][1] > 0) {
-            if (player[1][0] > 0 && player[1][1] > 0 && player[1][2] > 0) {
-                System.out.println("恭喜您已修完網路行銷學程可以畢業囉!!!");
-            } else if (player[2][0] > 0 && player[2][1] > 0 && player[2][2] > 0) {
-                System.out.println("恭喜您已修完資通訊學程可以畢業囉!!!");
-            } else if (player[3][0] > 0 && player[3][1] > 0 && player[3][2] > 0) {
-                System.out.println("恭喜您已修完ERP學程可以畢業囉!!!");
-            } else if (player[4][0] > 0 && player[4][1] > 0 && player[4][2] > 0) {
-                System.out.println("恭喜您已修完互動設計學程可以畢業囉!!!");
-            }
-        }
-
-    }
-
-    /**
-     * 畫黑線
-     */
-//    private void drawGrid() {
-//        float x;
-//        float y;
-//        Gdx.gl20.glLineWidth(4 / camera.zoom); // line width
-//        shapeRenderer.setProjectionMatrix(camera.combined);
-//        shapeRenderer.begin(ShapeType.Line);
-//        shapeRenderer.setColor(Color.BLACK);
-//        for (int i = 0; i < 12; i++) {
-//            for (int j = 0; j <= 12; j++) {
-//                x = 0 + i * 64;
-//                y = 0 + j * 64;
-//                shapeRenderer.line(x, y, x, y + height);
-//                shapeRenderer.line(x, y, x + width, y);
-//
-//            }
-//        }
-//        shapeRenderer.end();
-//    }
-    /**
-     * 畫面設定
-     */
-    private void showTile(int x, int y) {
-        int props = propsGrid[x][y];
-        if (props == 0) {
-            tileGrid[x][y] = 1;
-        } else {
-            tileGrid[x][y] = props;
-        }
-
-        printGrid(tileGrid, 20, 12);
-    }
-
     public int[][] generate(int grid_x, int grid_y) {
-        int[][] grid = new int[12][12];
+        int[][] grid = new int[24][12];
         int db_count = 0, c_num = 0;
         for (int n = 0; n < grid_x; n++) {
             for (int m = 0; m < grid_y; m++) {
                 grid[n][m] = 0;
             }
         }
-        printGrid(grid, 12, 12);
+        //printGrid(grid, 12, 12);
         for (int i = 0; i < 22; i++) {
             switch (i) {
                 case 0:
@@ -634,15 +482,238 @@ public class Minesweeper extends Game {
             }
 
         }
+        // 右邊背景
+        for (int n = 12; n < 24; n++) {
+            for (int m = 0; m < grid_y; m++) {
+                grid[n][m] = -1;
+            }
+        }
         printGrid(grid, 12, 12);
         return grid;
     }
 
-    public boolean isHidden(int x, int y) { //判斷是否按完了
+    /**
+     * 畫框線
+     */
+    private void drawGrid() {
+        float x;
+        float y;
+        Gdx.gl20.glLineWidth(1 / camera.zoom); // line width
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setColor(Color.BLACK);
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                x = 0 + i * 64;
+                y = 0 + j * 64;
+                shapeRenderer.line(x, 768, x, y);
+                shapeRenderer.line(x, y, 768, y);
+
+            }
+        }
+        shapeRenderer.line(768, 384, 1438, 384);    // 右邊中間那條
+        shapeRenderer.end();
+    }
+
+    /**
+     * 畫面點擊跟平手判斷
+     */
+    public void processTouch() {
+        Vector3 touchPos = new Vector3();
+        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(touchPos);
+
+        int col = (int) Math.floor(touchPos.x / 64);
+        int row = (int) Math.floor(touchPos.y / 64);
+        showTile(col, row);
+        judgePlayer(col, row);
+        VictoryFactor();
+        if (isNoWinning()) {
+            int a = JOptionPane.showConfirmDialog(null, "這局無輸贏，是否重來", "遊戲提示", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (a == 0) {
+                create();
+            }
+        }
+    }
+
+    /**
+     * 點擊觸發後更改實際畫面
+     */
+    private void showTile(int x, int y) {
+        int props = propsGrid[x][y];
+
+        if (props == 0) {
+            tileGrid[x][y] = 1;
+        } else {
+            tileGrid[x][y] = props;
+        }
+
+        //printGrid(tileGrid, 24, 12);
+    }
+
+    /**
+     * 判斷玩家按的座標值並且記錄
+     */
+    private void judgePlayer(int x, int y) {
+        int playerchoose = propsGrid[x][y];
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+
+        batch.begin();
+
+        switch (playerchoose) {
+            case 11:
+                playerA[0][0]++;
+                break;
+            case 12:
+                playerA[0][1]++;
+                break;
+            case 21:
+                playerA[1][0]++;
+                break;
+            case 22:
+                playerA[1][1]++;
+                break;
+            case 23:
+                playerA[1][2]++;
+                break;
+            case 31:
+                playerA[2][0]++;
+                break;
+            case 32:
+                playerA[2][1]++;
+                break;
+            case 33:
+                playerA[2][2]++;
+                break;
+            case 41:
+                playerA[3][0]++;
+                break;
+            case 42:
+                playerA[3][1]++;
+                break;
+            case 43:
+                playerA[3][2]++;
+                break;
+            case 51:
+                playerA[4][0]++;
+                break;
+            case 52:
+                playerA[4][1]++;
+                break;
+            case 53:
+                playerA[4][2]++;
+                break;
+            case 61:
+                propsEffect(1);
+                break;
+            case 62:
+                propsEffect(2);
+                break;
+            case 63:
+                propsEffect(3);
+                break;
+            case 64:
+                propsEffect(4);
+                break;
+            case 65:
+                propsEffect(5);
+                break;
+            case 66:
+                propsEffect(6);
+                break;
+            case 67:
+                propsEffect(7);
+                break;
+            case 68:
+                propsEffect(8);
+                break;
+
+        }
+        printGrid(playerA, 5, 3);
+        batch.end();
+
+    }
+
+    /**
+     * 道具功能判斷
+     */
+    private void propsEffect(int x) {
+        int xSite, ySite;
+        switch (x) {
+//            case 1:
+//                for (int k = 0; k < 1; k++) {
+//                    xSite = (int) Math.floor(Math.random() * 5);
+//                    ySite = (int) Math.floor(Math.random() * 3);
+//                    if (playerB[xSite][ySite] != 0 && xSite != 0 && ySite != 2) {
+//                        playerA[xSite][ySite]++;
+//                        playerB[xSite][ySite]--;
+//                    } else {
+//                        k--;
+//                    }
+//                }
+//                break;
+            case 2:
+                for (int k = 0; k < 1; k++) {
+                    xSite = (int) Math.floor(Math.random() * 5);
+                    ySite = (int) Math.floor(Math.random() * 3);
+                    if (playerA[xSite][ySite] != 0 && xSite != 0 && ySite != 2) {
+                        playerA[xSite][ySite]--;
+                    } else {
+                        k--;
+                    }
+                }
+                break;
+            case 3:
+                temporary = playerA;
+                playerA = playerB;
+                playerB = temporary;
+                break;
+            case 4:
+                for (int k = 0; k < 1; k++) {
+                    xSite = (int) Math.floor(Math.random() * 5);
+                    ySite = (int) Math.floor(Math.random() * 3);
+                    if (playerA[xSite][ySite] != 0 && xSite != 0 && ySite != 2) {
+                        playerA[0][1]++;
+                        playerA[xSite][ySite]--;
+                    } else {
+                        k--;
+                    }
+                }
+                break;
+            case 5:
+
+                break;
+            case 6:
+                playerA[0][0] = 1;
+                break;
+            case 7:
+                playerA[0][0] = 0;
+                break;
+            case 8:
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        playerA[i][j] = playerA[i][j] / 2;
+                    }
+                }
+                break;
+
+        }
+
+    }
+
+    /**
+     * 判斷是否按完了
+     */
+    public boolean isHidden(int x, int y) {
         return (0 == tileGrid[x][y]);
     }
 
-    public boolean isNoWinning() {//沒輸沒贏
+    /**
+     * 沒輸沒贏的判斷
+     */
+    public boolean isNoWinning() {
         int hiddenTiles = 0;
 
         for (int x = 0; x < 12; x++) {
@@ -652,10 +723,31 @@ public class Minesweeper extends Game {
                 }
             }
         }
+        //沒有數字全踩完嚕
+        return (0 == hiddenTiles);
+    }
+    
+    /**
+     * 勝利條件判斷
+     */
+    private void VictoryFactor() {
+        if (playerA[0][0] > 0 && playerA[0][1] > 0) {
+            if (playerA[1][0] > 0 && playerA[1][1] > 0 && playerA[1][2] > 0) {
+                System.out.println("恭喜您已修完網路行銷學程可以畢業囉!!!");
+            } else if (playerA[2][0] > 0 && playerA[2][1] > 0 && playerA[2][2] > 0) {
+                System.out.println("恭喜您已修完資通訊學程可以畢業囉!!!");
+            } else if (playerA[3][0] > 0 && playerA[3][1] > 0 && playerA[3][2] > 0) {
+                System.out.println("恭喜您已修完ERP學程可以畢業囉!!!");
+            } else if (playerA[4][0] > 0 && playerA[4][1] > 0 && playerA[4][2] > 0) {
+                System.out.println("恭喜您已修完互動設計學程可以畢業囉!!!");
+            }
+        }
 
-        return (0 == hiddenTiles);//沒有數字全踩完嚕
     }
 
+    /**
+     * 測試用印出陣列
+     */
     private void printGrid(int[][] grid, int x, int y) {
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
